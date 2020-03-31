@@ -1,0 +1,19 @@
+# Editors
+.vscode/
+.idea/
+/*.iml
+
+# Git things
+
+# Node things
+node_modules/
+*.log*
+
+# Build things
+dist/
+coverage/
+.eslintcache
+*.tsbuildinfo
+
+# OS
+.DS_Store

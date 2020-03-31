@@ -1,0 +1,23 @@
+{
+	"compilerOptions": {
+		"incremental": true,
+		"target": "ES2018",
+		"module": "commonjs",
+		"lib": ["ESNext"],
+		"outDir": "dist/",
+		"strict": true,
+		"strictNullChecks": true,
+		"typeRoots": ["./@types"],
+		"strictFunctionTypes": true,
+		"alwaysStrict": true,
+		"noImplicitAny": false,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
+		"moduleResolution": "node",
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true
+	},
+	"include": ["lib/**/*.ts"]
+}

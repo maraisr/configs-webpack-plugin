@@ -1,0 +1,123 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`WebpackRuntimeConfig test-build 1`] = `
+Array [
+  Object {
+    "assets": Array [],
+    "built": false,
+    "cacheable": true,
+    "chunks": Array [
+      "main",
+    ],
+    "depth": 1,
+    "errors": 0,
+    "failed": false,
+    "id": 0,
+    "identifier": "config [\\"dev\\"]",
+    "index": 1,
+    "index2": 0,
+    "issuer": "C:\\\\Users\\\\me\\\\Sites\\\\github\\\\webpack-runtime-config\\\\spec\\\\fixtures\\\\index.js",
+    "issuerId": "./index.js",
+    "issuerName": "./index.js",
+    "issuerPath": Array [
+      Object {
+        "id": "./index.js",
+        "identifier": "C:\\\\Users\\\\me\\\\Sites\\\\github\\\\webpack-runtime-config\\\\spec\\\\fixtures\\\\index.js",
+        "name": "./index.js",
+        "profile": undefined,
+      },
+    ],
+    "name": "config wrapper",
+    "optimizationBailout": Array [],
+    "optional": false,
+    "prefetched": false,
+    "profile": undefined,
+    "providedExports": Array [
+      "default",
+      "somethingValue",
+    ],
+    "reasons": Array [
+      Object {
+        "explanation": undefined,
+        "loc": "1:0-52",
+        "module": "./index.js",
+        "moduleId": "./index.js",
+        "moduleIdentifier": "C:\\\\Users\\\\me\\\\Sites\\\\github\\\\webpack-runtime-config\\\\spec\\\\fixtures\\\\index.js",
+        "moduleName": "./index.js",
+        "type": "harmony side effect evaluation",
+        "userRequest": "gdu/config",
+      },
+      Object {
+        "explanation": undefined,
+        "loc": "5:2-8",
+        "module": "./index.js",
+        "moduleId": "./index.js",
+        "moduleIdentifier": "C:\\\\Users\\\\me\\\\Sites\\\\github\\\\webpack-runtime-config\\\\spec\\\\fixtures\\\\index.js",
+        "moduleName": "./index.js",
+        "type": "harmony import specifier",
+        "userRequest": "gdu/config",
+      },
+      Object {
+        "explanation": undefined,
+        "loc": "6:2-16",
+        "module": "./index.js",
+        "moduleId": "./index.js",
+        "moduleIdentifier": "C:\\\\Users\\\\me\\\\Sites\\\\github\\\\webpack-runtime-config\\\\spec\\\\fixtures\\\\index.js",
+        "moduleName": "./index.js",
+        "type": "harmony import specifier",
+        "userRequest": "gdu/config",
+      },
+    ],
+    "size": 42,
+    "warnings": 0,
+  },
+  Object {
+    "assets": Array [],
+    "built": true,
+    "cacheable": true,
+    "chunks": Array [
+      "main",
+    ],
+    "depth": 0,
+    "errors": 0,
+    "failed": false,
+    "id": "./index.js",
+    "identifier": "C:\\\\Users\\\\me\\\\Sites\\\\github\\\\webpack-runtime-config\\\\spec\\\\fixtures\\\\index.js",
+    "index": 0,
+    "index2": 1,
+    "issuer": null,
+    "issuerId": null,
+    "issuerName": null,
+    "issuerPath": null,
+    "name": "./index.js",
+    "optimizationBailout": Array [],
+    "optional": false,
+    "prefetched": false,
+    "profile": undefined,
+    "providedExports": Array [],
+    "reasons": Array [
+      Object {
+        "explanation": undefined,
+        "loc": "main",
+        "module": null,
+        "moduleId": null,
+        "moduleIdentifier": null,
+        "moduleName": null,
+        "type": "single entry",
+        "userRequest": "./index.js",
+      },
+    ],
+    "size": 105,
+    "source": "import config, { somethingValue } from 'gdu/config';
+
+console.log(
+	{
+		config,
+		somethingValue,
+	},
+);
+",
+    "warnings": 0,
+  },
+]
+`;

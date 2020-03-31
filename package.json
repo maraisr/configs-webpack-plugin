@@ -1,0 +1,53 @@
+{
+  "name": "webpack-runtime-config",
+  "version": "0.0.1",
+  "description": "A simplified AoT runtime config solution for your webpack builds",
+  "main": "index.js",
+  "author": "Marais Rossouw <me@maraisr.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "format": "prettier --write \"{*,lib/**/*}.+(js|ts|json)\"",
+    "test": "jest"
+  },
+  "prettier": {
+    "printWidth": 80,
+    "singleQuote": true,
+    "tabWidth": 4,
+    "trailingComma": "all",
+    "useTabs": true,
+    "proseWrap": "always",
+    "bracketSpacing": true,
+    "overrides": [
+      {
+        "files": [
+          "package.json"
+        ],
+        "options": {
+          "printWidth": 999,
+          "useTabs": false,
+          "tabWidth": 2
+        }
+      }
+    ]
+  },
+  "devDependencies": {
+    "@types/jest": "^25.1.4",
+    "@types/webpack": "^4.41.10",
+    "jest": "^25.2.4",
+    "prettier": "^2.0.2",
+    "rimraf": "^3.0.2",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.1"
+  },
+  "peerDependencies": {
+    "webpack": "^4.0.0"
+  },
+  "volta": {
+    "node": "13.12.0",
+    "yarn": "1.22.4"
+  },
+  "dependencies": {
+    "webpack-sources": "^1.4.3"
+  }
+}
