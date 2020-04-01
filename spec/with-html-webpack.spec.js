@@ -21,6 +21,7 @@ describe.only('WebpackRuntimeConfig :: basic', () => {
 
 	it('should build', async () => {
 		const stats = await runWebpack({
+			entry: './defered.js',
 			plugins: [
 				new HtmlWebpackPlugin(),
 				new class HtmlWebpackPluginConfigAdditions {
@@ -49,8 +50,9 @@ describe.only('WebpackRuntimeConfig :: basic', () => {
 					}
 				},
 				new WebpackRuntimeConfig({
+					runtimePublicPath: 'publicPath',
 					configs: [
-						{ name: 'dev', config: basicConfig },
+						{ name: 'dev', config: { ...basicConfig, publicPath: '../' } },
 						{ name: 'uat', config: { ...basicConfig, somethingElseHappened: 'in uat' } },
 					],
 					request: 'gdu/config',

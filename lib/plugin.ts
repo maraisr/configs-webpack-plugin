@@ -17,11 +17,9 @@ const hooksCache = new WeakMap();
 export default class WebpackRuntimeConfig implements Plugin {
 	static PLUGIN_NAME = WebpackRuntimeConfig.name;
 	private _configs: Options['configs'];
-	private _request: string;
 
-	constructor(options: Options) {
+	constructor(private options: Options) {
 		this._configs = [...options.configs]; // If its a generator, collect that here
-		this._request = options.request;
 	}
 
 	static getHooks(compilation) {
@@ -50,6 +48,7 @@ export default class WebpackRuntimeConfig implements Plugin {
 					(modules) => {
 						for (const mod of modules) {
 							if (mod instanceof ConfigModule) {
+								// TODO: Hash the config object config graph
 								mod.id = 'config_module';
 							}
 						}
@@ -123,7 +122,7 @@ export default class WebpackRuntimeConfig implements Plugin {
 			WebpackRuntimeConfig.PLUGIN_NAME,
 			(_compilation, { normalModuleFactory }) => {
 				new WebpackRuntimeConfigFactoryPlugin({
-					request: this._request,
+					...this.options,
 					configs: this._configs,
 				}).apply(normalModuleFactory);
 			},
@@ -145,7 +144,7 @@ class WebpackRuntimeConfigFactoryPlugin {
 					return void callback(
 						null,
 						new ConfigQueryModule(
-							this.options.configs,
+							this.options,
 							data.contextInfo.issuer,
 							context,
 						),

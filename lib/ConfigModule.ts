@@ -1,6 +1,7 @@
 import Module from 'webpack/lib/Module';
 import Dependency from 'webpack/lib/Dependency';
 import HarmonyExportSpecifierDependency from 'webpack/lib/dependencies/HarmonyExportSpecifierDependency';
+import HarmonyCompatibilityDependency from 'webpack/lib/dependencies/HarmonyCompatibilityDependency';
 import { ConcatSource, ReplaceSource } from 'webpack-sources';
 import { Options } from './types';
 
@@ -8,12 +9,12 @@ type Config = ArrayType<Options['configs']>;
 
 export class ConfigDependencyFactory {
 	create({ dependencies: [dependency] }, callback) {
-		callback(null, new ConfigModule(dependency.config));
+		callback(null, new ConfigModule(dependency.config, dependency.options));
 	}
 }
 
 export class ConfigDependency extends Dependency {
-	constructor(private config: Config) {
+	constructor(public config: Config, public options: Options) {
 		super();
 	}
 
@@ -23,7 +24,7 @@ export class ConfigDependency extends Dependency {
 }
 
 export class ConfigModule extends Module {
-	constructor(public config: Config) {
+	constructor(public config: Config, private options: Options) {
 		super('javascript/dynamic');
 	}
 
@@ -41,7 +42,7 @@ export class ConfigModule extends Module {
 		this.built = true;
 		this.buildMeta = {
 			exportsType: 'named',
-			providedExports: Object.keys(this.config.config),
+			providedExports: [],
 		};
 		this.buildInfo = {
 			strict: true,
@@ -49,15 +50,28 @@ export class ConfigModule extends Module {
 			exportsArgument: 'exports',
 		};
 
-		this.dependencies = [];
+		this.dependencies = [new HarmonyCompatibilityDependency(this)];
 
 		for (const [name] of Object.entries(this.config.config)) {
+			if (
+				this._hasPublicRuntimeConfig &&
+				name === this.options.runtimePublicPath
+			)
+				continue;
 			this.addDependency(
 				new HarmonyExportSpecifierDependency(this, name, name),
 			);
+			this.buildMeta.providedExports!.push(name);
 		}
 
 		callback();
+	}
+
+	get _hasPublicRuntimeConfig() {
+		return (
+			typeof this.options.runtimePublicPath === 'string' &&
+			this.config.config.hasOwnProperty(this.options.runtimePublicPath)
+		);
 	}
 
 	source(dependencyTemplates, runtimeTemplate) {
@@ -67,10 +81,6 @@ export class ConfigModule extends Module {
 		);
 
 		const source = new ReplaceSource(fileSource);
-		source.insert(
-			-10,
-			runtimeTemplate.defineEsModuleFlagStatement(this.buildInfo),
-		);
 
 		const exportSpec = dependencyTemplates.get(
 			HarmonyExportSpecifierDependency,
@@ -79,15 +89,24 @@ export class ConfigModule extends Module {
 		for (const dep of this.dependencies) {
 			if (dep instanceof HarmonyExportSpecifierDependency) {
 				exportSpec.harmonyInit(dep, source, runtimeTemplate);
-				fileSource.add(
-					// @ts-ignore
-					`const ${dep.name} = ${JSON.stringify(
-						this.config.config[dep.name],
-						null,
-						4,
-					)};\n`,
-				);
+				continue;
 			}
+
+			const template = dependencyTemplates.get(dep.constructor);
+			template.apply(dep, source, runtimeTemplate, dependencyTemplates);
+		}
+
+		for (const [name, value] of Object.entries(this.config.config)) {
+			fileSource.add(
+				`const ${name} = ${JSON.stringify(value, null, 4)};\n`,
+			);
+		}
+
+		// TODO: Move this to a entryModule instead.
+		if (this._hasPublicRuntimeConfig) {
+			fileSource.add(
+				`\n\n__webpack_require__.p = ${this.options.runtimePublicPath} + __webpack_require__.p;`,
+			);
 		}
 
 		return source.source();

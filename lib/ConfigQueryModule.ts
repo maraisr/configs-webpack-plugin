@@ -1,28 +1,25 @@
 import { Options } from './types';
 import { ConfigDependency } from './ConfigModule';
-import { ConcatSource } from 'webpack-sources';
+import { ConcatSource, ReplaceSource } from 'webpack-sources';
 import HarmonyExportImportedSpecifierDependency from 'webpack/lib/dependencies/HarmonyExportImportedSpecifierDependency';
+import HarmonyCompatibilityDependency from 'webpack/lib/dependencies/HarmonyCompatibilityDependency';
 import Module from 'webpack/lib/Module';
 
 export class ConfigQueryModule extends Module {
-	constructor(
-		private configs: Options['configs'],
-		issuer: any,
-		context: string,
-	) {
+	constructor(private options: Options, issuer: any, context: string) {
 		super('javascript/dynamic', context);
 		this.issuer = issuer;
 		this.dependencies = [];
 	}
 
 	identifier() {
-		return `config wrapper ${JSON.stringify(
-			this.configs.map((i) => i.name),
+		return `config query ${JSON.stringify(
+			this.options.configs.map((i) => i.name),
 		)}`;
 	}
 
 	readableIdentifier() {
-		return `config wrapper`;
+		return `config query`;
 	}
 
 	build(_options, _compilation, _resolver, _fs, callback) {
@@ -38,14 +35,16 @@ export class ConfigQueryModule extends Module {
 
 		this.dependencies = [];
 
-		for (const config of this.configs) {
-			const dep = new ConfigDependency(config);
+		for (const config of this.options.configs) {
+			const dep = new ConfigDependency(config, this.options);
 			dep.loc = {
 				name: config.name,
 			};
 
 			this.dependencies.push(dep);
 		}
+
+		this.dependencies.push(new HarmonyCompatibilityDependency(this));
 
 		callback();
 	}
@@ -58,7 +57,7 @@ export class ConfigQueryModule extends Module {
 		);
 		// Pick the first one, as they _should_ all point to the same module id
 		// @ts-ignore
-		const [{ module }] = this.dependencies;
+		const [{ module }, ...otherDeps] = this.dependencies;
 
 		const dynamicReExport = reExportSpec.getContent({
 			originModule: this,
@@ -80,8 +79,7 @@ export class ConfigQueryModule extends Module {
 			},
 		});
 
-		return new ConcatSource(
-			runtimeTemplate.defineEsModuleFlagStatement(this.buildInfo),
+		const fileSource = new ConcatSource(
 			runtimeTemplate.importStatement({
 				update: false,
 				module,
@@ -91,6 +89,16 @@ export class ConfigQueryModule extends Module {
 			}),
 			dynamicReExport,
 		);
+		const source = new ReplaceSource(fileSource);
+
+		for (const dep of otherDeps) {
+			if (dep instanceof ConfigDependency) continue;
+
+			const template = dependencyTemplates.get(dep.constructor);
+			template.apply(dep, source, runtimeTemplate, dependencyTemplates);
+		}
+
+		return source.source();
 	}
 
 	needRebuild() {

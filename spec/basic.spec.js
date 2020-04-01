@@ -78,9 +78,11 @@ describe('WebpackRuntimeConfig :: basic', () => {
 					}
 				},
 				new WebpackRuntimeConfig({
+					runtimePublicPath: 'publicPath',
 					configs: [
 						{ name: 'dev', config: basicConfig },
 						{ name: 'uat', config: { ...basicConfig, somethingElse: 'in uat' } },
+						{ name: 'pre', config: { ...basicConfig, publicPath: 'public_path_value' } },
 					],
 					request: 'gdu/config',
 				}),
@@ -118,9 +120,11 @@ describe('WebpackRuntimeConfig :: basic', () => {
 					}
 				},
 				new WebpackRuntimeConfig({
+					runtimePublicPath: 'publicPath',
 					configs: [
 						{ name: 'dev', config: basicConfig },
 						{ name: 'uat', config: { ...basicConfig, somethingElse: 'in uat' } },
+						{ name: 'pre', config: { ...basicConfig, publicPath: 'public_path_value' } },
 					],
 					request: 'gdu/config',
 				}),
@@ -131,12 +135,43 @@ describe('WebpackRuntimeConfig :: basic', () => {
 	it('should work in production mode also', async () => {
 		const stats = await runWebpack({
 			mode: 'production',
+			optimization: {
+				concatenateModules: true,
+			},
 			plugins: [new WebpackRuntimeConfig({
 				configs: [
 					{ name: 'dev', config: basicConfig },
 				],
 				request: 'gdu/config',
 			})],
+		}, OUTPUT_DIR);
+
+		expectStatsGreen(stats);
+	});
+
+	it('should allow runtime public path', async () => {
+		const stats = await runWebpack({
+			plugins: [
+				new WebpackRuntimeConfig({
+					runtimePublicPath: 'publicPathSettingPath',
+					configs: [
+						{
+							name: 'dev',
+							config: {
+								...basicConfig,
+								publicPathSettingPath: 'publicPathSettingValue',
+							},
+						},
+						{
+							name: 'uat',
+							config: {
+								...basicConfig,
+							},
+						},
+					],
+					request: 'gdu/config',
+				}),
+			],
 		}, OUTPUT_DIR);
 
 		expectStatsGreen(stats);
