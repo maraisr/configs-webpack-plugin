@@ -1,12 +1,13 @@
 declare module 'webpack/lib/Module' {
 	import webpack from 'webpack';
 	import Compilation = webpack.compilation.Compilation;
+	import Dependency = webpack.compilation.Dependency;
 
-	export default abstract class Module {
+	export default abstract class Module extends webpack.compilation.Module {
 
-		abstract identifier(): string;
+		public dependencies: Dependency[];
 
-		abstract readableIdentifier(requestShortener: string): string;
+		addDependency(dependency: Dependency): void;
 
 		abstract build(options, compilation: Compilation, resolver, fs, callback: (error?: any) => void);
 
@@ -14,9 +15,10 @@ declare module 'webpack/lib/Module' {
 
 		abstract size(): number;
 
-		abstract needRebuild?(): boolean;
+		abstract identifier(): string;
 
-		built: boolean;
+		abstract readableIdentifier(requestShortener: string): string;
+
 		buildMeta: Partial<{
 			exportsType: string;
 			providedExports: string[]
@@ -26,7 +28,25 @@ declare module 'webpack/lib/Module' {
 			cacheable: boolean;
 			exportsArgument: string;
 		}>;
+	}
+}
 
-		protected constructor(type: string, context: string | null);
+declare module 'webpack/lib/Dependency' {
+	import webpack from 'webpack';
+
+	export default class Dependency extends webpack.compilation.Dependency {
+		public loc: object;
+	}
+}
+
+
+declare module 'webpack/lib/dependencies/HarmonyExportSpecifierDependency' {
+	import Module from 'webpack/lib/Module';
+	import Dependency from 'webpack/lib/Dependency';
+
+	export default class HarmonyExportSpecifierDependency extends Dependency {
+		name: string;
+
+		constructor(originModule: Module, id: string | number, name: string)
 	}
 }

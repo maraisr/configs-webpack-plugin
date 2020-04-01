@@ -1,50 +1,154 @@
+import ChunkGroup from 'webpack/lib/ChunkGroup';
+import GraphHelpers from 'webpack/lib/GraphHelpers';
 import webpack, { Plugin } from 'webpack';
-import HarmonyExportSpecifierDependency from 'webpack/lib/dependencies/HarmonyExportSpecifierDependency';
-import { ConcatSource } from 'webpack-sources';
-import Module from 'webpack/lib/Module';
+import {
+	ConfigDependency,
+	ConfigDependencyFactory,
+	ConfigModule,
+} from './ConfigModule';
+import { ConfigQueryModule } from './ConfigQueryModule';
+import { Options } from './types';
+import { SyncHook } from 'tapable';
 import NormalModuleFactory = webpack.compilation.NormalModuleFactory;
+import Chunk = webpack.compilation.Chunk;
 
-interface Config {
-	envs: { name: string; config: object }[];
-	request: string;
-}
-
-const envCache = new WeakMap<any, Config['envs']>();
+const hooksCache = new WeakMap();
 
 export default class WebpackRuntimeConfig implements Plugin {
 	static PLUGIN_NAME = WebpackRuntimeConfig.name;
+	private _configs: Options['configs'];
+	private _request: string;
 
-	constructor(private config: Config) {}
+	constructor(options: Options) {
+		this._configs = [...options.configs]; // If its a generator, collect that here
+		this._request = options.request;
+	}
+
+	static getHooks(compilation) {
+		let hooks = hooksCache.get(compilation);
+		if (hooks === undefined) {
+			hooks = {
+				configChunks: new SyncHook(['configChunks']),
+			};
+			hooksCache.set(compilation, hooks);
+		}
+		return hooks;
+	}
 
 	apply(compiler): void {
-		compiler.hooks.compile.tap(
+		compiler.hooks.make.tap(
 			WebpackRuntimeConfig.PLUGIN_NAME,
-			({ normalModuleFactory }) => {
-				new WebpackRuntimeConfigFactoryPlugin(this.config).apply(
-					normalModuleFactory,
+			(compilation) => {
+				compilation.dependencyFactories.set(
+					ConfigDependency,
+					new ConfigDependencyFactory(),
+				);
+
+				// Make sure all ConfigModules are the same across chunks.
+				compilation.hooks.moduleIds.tap(
+					WebpackRuntimeConfig.PLUGIN_NAME,
+					(modules) => {
+						for (const mod of modules) {
+							if (mod instanceof ConfigModule) {
+								mod.id = 'config_module';
+							}
+						}
+					},
+				);
+
+				compilation.hooks.afterChunks.tap(
+					WebpackRuntimeConfig.PLUGIN_NAME,
+					() => {
+						const configChunks = [] as Chunk[];
+
+						for (const module of compilation.modules) {
+							if (module instanceof ConfigModule) {
+								const {
+									config: { name },
+								} = module;
+
+								const chunkGroup = new ChunkGroup(
+									`config-${name}`,
+								);
+
+								const newChunk = compilation.addChunk(
+									`config-${name}`,
+								) as Chunk;
+
+								newChunk.chunkReason = `config for ${name}`;
+								newChunk.preventIntegration = true;
+
+								// When the module graph was built our ConfigModules were added in place, this removes
+								// them everywhere - so we can "split them out".
+								for (const chunk of compilation.chunks) {
+									chunk.removeModule(module);
+									module.rewriteChunkInReasons(chunk, [
+										newChunk,
+									]);
+								}
+
+								GraphHelpers.connectChunkAndModule(
+									newChunk,
+									module,
+								);
+								GraphHelpers.connectChunkGroupAndChunk(
+									chunkGroup,
+									newChunk,
+								);
+
+								// So that we guarantee the jsonp stuff exists.
+								compilation.entrypoints.forEach(
+									(entrypoint) => {
+										GraphHelpers.connectChunkGroupParentAndChild(
+											entrypoint,
+											chunkGroup,
+										);
+									},
+								);
+
+								// To be used for the hooks
+								configChunks.push(newChunk);
+							}
+						}
+
+						WebpackRuntimeConfig.getHooks(
+							compilation,
+						).configChunks.call(configChunks);
+					},
 				);
 			},
 		);
-		// TODO: Somewhere here, grab a child compiler, and compile to source all env's, mark as chunks all with the same id.
+
+		compiler.hooks.thisCompilation.tap(
+			WebpackRuntimeConfig.PLUGIN_NAME,
+			(_compilation, { normalModuleFactory }) => {
+				new WebpackRuntimeConfigFactoryPlugin({
+					request: this._request,
+					configs: this._configs,
+				}).apply(normalModuleFactory);
+			},
+		);
 	}
 }
 
 class WebpackRuntimeConfigFactoryPlugin {
-	static PLUGIN_NAME = WebpackRuntimeConfig.name;
-
-	constructor(private config: Config) {}
+	constructor(private options: Options) {}
 
 	apply(normalModuleFactory: NormalModuleFactory) {
 		normalModuleFactory.hooks.factory.tap(
-			WebpackRuntimeConfigFactoryPlugin.PLUGIN_NAME,
+			WebpackRuntimeConfig.PLUGIN_NAME,
 			(factory) => (data, callback) => {
 				const context = data.context;
 				const dependency = data.dependencies[0];
 
-				if (dependency.request === this.config.request) {
+				if (dependency.request === this.options.request) {
 					return void callback(
 						null,
-						new ConfigModule(this.config.envs, context),
+						new ConfigQueryModule(
+							this.options.configs,
+							data.contextInfo.issuer,
+							context,
+						),
 					);
 				}
 
@@ -53,86 +157,3 @@ class WebpackRuntimeConfigFactoryPlugin {
 		);
 	}
 }
-
-class ConfigModule extends Module {
-	constructor(private envs: Config['envs'], context: string) {
-		super('javascript/esm', context);
-	}
-
-	identifier() {
-		return `config ${JSON.stringify(this.envs.map((i) => i.name))}`;
-	}
-
-	readableIdentifier() {
-		return `config wrapper`;
-	}
-
-	source(dependencyTemplates, runtimeTemplate) {
-		const importSpec = dependencyTemplates.get(
-			HarmonyExportSpecifierDependency,
-		);
-
-		return new ConcatSource('test');
-	}
-
-	build(options, compilation, resolver, fs, callback) {
-		this.built = true;
-		this.buildMeta = {
-			exportsType: 'namespace',
-		};
-		this.buildInfo = {
-			strict: true,
-			cacheable: true,
-			exportsArgument: '__webpack_exports__',
-		};
-
-		let envConfig: Config['envs'];
-		if (envCache.has(compilation)) {
-			envConfig = envCache.get(compilation)!;
-		} else {
-			const cfgs = [...this.envs];
-			envCache.set(compilation, cfgs);
-			envConfig = cfgs;
-		}
-
-		// Collect config keys
-		const configKeys = Array.from(getExportsFromEnv(envConfig).keys());
-
-		if (configKeys.includes('default')) {
-			return void callback(
-				new Error('Sorry "default" is a reserved config key.'),
-			);
-		}
-
-		this.buildMeta['providedExports'] = ['default', ...configKeys];
-
-		callback();
-	}
-
-	needRebuild(): boolean {
-		return false;
-	}
-
-	size() {
-		return 42;
-	}
-}
-
-const exportCache = new WeakMap();
-
-const getExportsFromEnv = (envs: Config['envs']): Map<string, any> => {
-	if (exportCache.has(envs)) return exportCache.get(envs);
-
-	const m = new Map();
-
-	envs.reduce(
-		(result, item) => [...result, ...Object.keys(item.config)],
-		[] as string[],
-	).forEach((key) => {
-		m.set(key, envs[key]);
-	});
-
-	exportCache.set(envs, m);
-
-	return m;
-};

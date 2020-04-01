@@ -1,106 +1,144 @@
-const { join } = require('path');
-const webpack = require('webpack');
 const rimraf = require('rimraf');
+const { expectStatsGreen, runWebpack } = require('./helpers');
+const { join } = require('path');
 const { WebpackRuntimeConfig } = require('../');
 
-jest.setTimeout(30000);
-
-process.on('unhandledRejection', r => console.log(r));
-process.traceDeprecation = true;
-
-const OUTPUT_DIR = join(__dirname, 'fixtures/dist/');
-
-const runWebpack = async (config = {}, entry = 'index.js') => new Promise((resolve, reject) => {
-	webpack({
-		mode: 'development',
-		entry: './index.js',
-		context: join(__dirname, 'fixtures/'),
-		devtool: '',
-		output: {
-			path: OUTPUT_DIR,
-			filename: 'main.js',
-		},
-		...config,
-	}, (err, stats) => {
-		expect(err).toBeFalsy();
-		if (err) return reject(err);
-
-		resolve(stats);
-	});
-});
-
-const expectStatsErrors = (stats, shouldHave = false) => {
-	const compilationErrors = (stats.compilation.errors || []).join('\n');
-	if (!shouldHave) {
-		expect(compilationErrors).toBe('');
-	} else {
-		expect(compilationErrors).not.toBe('');
-	}
+const basicConfig = {
+	somethingValue: 'fooBar',
+	shouldTreeShake: 'tree-shaken-value',
+	nested: {
+		test: 'nested',
+	},
 };
 
-const expectStatsWarnings = (stats, shouldHave = false) => {
-	const compilationWarnings = (stats.compilation.warnings || []).join('\n');
-	if (!shouldHave) {
-		expect(compilationWarnings).toBe('');
-	} else {
-		expect(compilationWarnings).not.toBe('');
-	}
-};
+const OUTPUT_DIR = join(__dirname, 'fixtures/basic-dist/');
 
-const expectStatsGreen = (stats) => {
-	expectStatsErrors(stats);
-	expectStatsWarnings(stats);
-};
-
-describe('WebpackRuntimeConfig', () => {
+describe('WebpackRuntimeConfig :: basic', () => {
 	beforeEach(done => {
 		rimraf(OUTPUT_DIR, done);
 	});
 
-	it('should build', async () => {
+	it('should build with async', async () => {
 		const stats = await runWebpack({
 			plugins: [new WebpackRuntimeConfig({
-				envs: [{ name: 'dev', config: { somethingValue: 'fooBar', shouldTreeShake: 'tree-shaken-value' } }],
+				configs: [
+					{ name: 'dev', config: basicConfig },
+					{ name: 'uat', config: { ...basicConfig, somethingElseHappened: 'in uat' } },
+				],
 				request: 'gdu/config',
 			})],
-		});
+		}, OUTPUT_DIR);
 
 		expectStatsGreen(stats);
 	});
 
-	it.only('should build with async', async () => {
+	it('should fire hook for configChunks', async () => {
+		// one for the webpack errors, and one for the hook.
+		expect.assertions(2);
+
+		await runWebpack({
+			plugins: [
+				new class TesterPlugin {
+					apply(compiler) {
+						compiler.hooks.compilation.tap('testing', compilation => {
+							WebpackRuntimeConfig.getHooks(compilation)
+								.configChunks.tap('tester', configChunks => {
+								expect(configChunks).toHaveLength(2);
+							});
+						});
+					}
+				},
+				new WebpackRuntimeConfig({
+					configs: [
+						{ name: 'dev', config: basicConfig },
+						{ name: 'uat', config: { ...basicConfig, somethingElseHappened: 'in uat' } },
+					],
+					request: 'gdu/config',
+				}),
+			],
+		}, OUTPUT_DIR);
+	});
+
+	it.each([
+		'./index.js',
+		'./defered.js',
+	])('should match snapshot for %s', async (entry) => {
 		const stats = await runWebpack({
-			entry: './complex.js',
-			plugins: [new WebpackRuntimeConfig({
-				envs: [{ name: 'dev', config: { somethingValue: 'fooBar', shouldTreeShake: 'tree-shaken-value' } }],
-				request: 'gdu/config',
-			})],
-		});
+			entry,
+			plugins: [
+				new class TestingPlugin {
+					apply(compiler) {
+						compiler.hooks.afterCompile.tap('testing', compilation => {
+							Object.entries(compilation.assets)
+								.forEach(([name, asset]) => {
+									expect(asset.source())
+										.toMatchSnapshot(name);
+								});
+						});
+					}
+				},
+				new WebpackRuntimeConfig({
+					configs: [
+						{ name: 'dev', config: basicConfig },
+						{ name: 'uat', config: { ...basicConfig, somethingElse: 'in uat' } },
+					],
+					request: 'gdu/config',
+				}),
+			],
+		}, OUTPUT_DIR);
 
 		expectStatsGreen(stats);
 	});
 
-	it.skip('should fail when passing "default" as config key', async () => {
-		const stats = await runWebpack({
-			plugins: [new WebpackRuntimeConfig({
-				envs: [{ name: 'dev', config: { somethingValue: 'fooBar', shouldTreeShake: 'tree-shaken-value' } }],
-				request: 'gdu/config',
-			})],
-		});
-		console.log(stats.toString());
+	it('should match snapshot', async () => {
+		await runWebpack({
+			plugins: [
+				new class TestingPlugin {
+					apply(compiler) {
+						let chunks;
 
-		expectStatsErrors(stats, true);
-		expectStatsWarnings(stats, true);
+						compiler.hooks.compilation.tap('testing', compilation => {
+							WebpackRuntimeConfig.getHooks(compilation)
+								.configChunks
+								.tap('testing', configChunks => {
+									chunks = configChunks;
+								});
+						});
+
+						compiler.hooks.afterCompile.tap('testing', compilation => {
+							const chunkFiles = chunks.map(item => item.files).flat();
+
+							for (const configChunkFileName of chunkFiles) {
+								expect(compilation.assets[configChunkFileName]).toBeTruthy();
+
+								expect(compilation.assets[configChunkFileName].source())
+									.toMatchSnapshot(configChunkFileName);
+							}
+						});
+					}
+				},
+				new WebpackRuntimeConfig({
+					configs: [
+						{ name: 'dev', config: basicConfig },
+						{ name: 'uat', config: { ...basicConfig, somethingElse: 'in uat' } },
+					],
+					request: 'gdu/config',
+				}),
+			],
+		}, OUTPUT_DIR);
 	});
 
-	it.skip('should match snapshot', async () => {
+	it('should work in production mode also', async () => {
 		const stats = await runWebpack({
+			mode: 'production',
 			plugins: [new WebpackRuntimeConfig({
-				envs: [{ name: 'dev', config: { somethingValue: 'fooBar', shouldTreeShake: 'tree-shaken-value' } }],
+				configs: [
+					{ name: 'dev', config: basicConfig },
+				],
 				request: 'gdu/config',
 			})],
-		});
+		}, OUTPUT_DIR);
 
-		expect(stats.toJson().modules).toMatchSnapshot();
+		expectStatsGreen(stats);
 	});
 });

@@ -1,6 +1,5 @@
 {
 	"compilerOptions": {
-		"incremental": true,
 		"target": "ES2018",
 		"module": "commonjs",
 		"lib": ["ESNext"],
@@ -19,5 +18,5 @@
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true
 	},
-	"include": ["lib/**/*.ts"]
+	"include": ["global.d.ts", "lib/**/*.ts"]
 }

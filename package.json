@@ -2,22 +2,24 @@
   "name": "webpack-runtime-config",
   "version": "0.0.1",
   "description": "A simplified AoT runtime config solution for your webpack builds",
-  "main": "index.js",
-  "author": "Marais Rossouw <me@maraisr.com>",
   "license": "MIT",
+  "author": "Marais Rossouw <me@maraisr.com>",
+  "main": "index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --incremental",
+    "build:watch": "tsc --watch",
     "format": "prettier --write \"{*,lib/**/*}.+(js|ts|json)\"",
+    "lint": "tsc --noEmit",
     "test": "jest"
   },
   "prettier": {
+    "bracketSpacing": true,
     "printWidth": 80,
+    "proseWrap": "always",
     "singleQuote": true,
     "tabWidth": 4,
     "trailingComma": "all",
     "useTabs": true,
-    "proseWrap": "always",
-    "bracketSpacing": true,
     "overrides": [
       {
         "files": [
@@ -25,15 +27,26 @@
         ],
         "options": {
           "printWidth": 999,
-          "useTabs": false,
-          "tabWidth": 2
+          "tabWidth": 2,
+          "useTabs": false
         }
       }
     ]
   },
+  "jest": {
+    "setupFiles": [
+      "./spec/setup.js"
+    ],
+    "testEnvironment": "node"
+  },
+  "dependencies": {
+    "tapable": "^1.1.3",
+    "webpack-sources": "^1.4.3"
+  },
   "devDependencies": {
     "@types/jest": "^25.1.4",
     "@types/webpack": "^4.41.10",
+    "html-webpack-plugin": "^4.0.3",
     "jest": "^25.2.4",
     "prettier": "^2.0.2",
     "rimraf": "^3.0.2",
@@ -46,8 +59,5 @@
   "volta": {
     "node": "13.12.0",
     "yarn": "1.22.4"
-  },
-  "dependencies": {
-    "webpack-sources": "^1.4.3"
   }
 }
