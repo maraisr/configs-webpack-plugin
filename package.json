@@ -1,6 +1,6 @@
 {
   "name": "configs-webpack-plugin",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "description": "A simplified AoT runtime config solution for your webpack builds",
   "keywords": [
     "webpack",
@@ -12,12 +12,13 @@
   "repository": "github:maraisr/configs-webpack-plugin",
   "license": "MIT",
   "author": "Marais Rossouw <me@maraisr.com>",
-  "main": "dist/index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/types/index.d.ts",
   "files": [
     "dist/"
   ],
   "scripts": {
-    "build": "tsc --incremental",
+    "build": "tsc --incremental && tsc -d --declarationDir dist/types/",
     "build:watch": "tsc --watch",
     "format": "prettier --write \"{*,lib/**/*}.+(md|js|ts|json)\"",
     "lint": "tsc --noEmit",
