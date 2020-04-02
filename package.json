@@ -19,7 +19,7 @@
   "scripts": {
     "build": "tsc --incremental",
     "build:watch": "tsc --watch",
-    "format": "prettier --write \"{*,lib/**/*}.+(js|ts|json)\"",
+    "format": "prettier --write \"{*,lib/**/*}.+(md|js|ts|json)\"",
     "lint": "tsc --noEmit",
     "test": "jest"
   },
