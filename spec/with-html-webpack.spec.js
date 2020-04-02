@@ -50,9 +50,8 @@ describe.only('WebpackRuntimeConfig :: basic', () => {
 					}
 				},
 				new WebpackRuntimeConfig({
-					runtimePublicPath: 'publicPath',
 					configs: [
-						{ name: 'dev', config: { ...basicConfig, publicPath: '../' } },
+						{ name: 'dev', config: basicConfig },
 						{ name: 'uat', config: { ...basicConfig, somethingElseHappened: 'in uat' } },
 					],
 					request: 'gdu/config',

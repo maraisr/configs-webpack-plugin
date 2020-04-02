@@ -7,7 +7,7 @@ import {
 	ConfigModule,
 } from './ConfigModule';
 import { ConfigQueryModule } from './ConfigQueryModule';
-import { Options } from './types';
+import type { Options } from './types';
 import { SyncHook } from 'tapable';
 import NormalModuleFactory = webpack.compilation.NormalModuleFactory;
 import Chunk = webpack.compilation.Chunk;

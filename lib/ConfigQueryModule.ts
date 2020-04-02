@@ -1,4 +1,4 @@
-import { Options } from './types';
+import type { Options } from './types';
 import { ConfigDependency } from './ConfigModule';
 import { ConcatSource, ReplaceSource } from 'webpack-sources';
 import HarmonyExportImportedSpecifierDependency from 'webpack/lib/dependencies/HarmonyExportImportedSpecifierDependency';
@@ -36,7 +36,7 @@ export class ConfigQueryModule extends Module {
 		this.dependencies = [];
 
 		for (const config of this.options.configs) {
-			const dep = new ConfigDependency(config, this.options);
+			const dep = new ConfigDependency(config);
 			dep.loc = {
 				name: config.name,
 			};

@@ -50,38 +50,6 @@ const nested = {
 }]);"
 `;
 
-exports[`WebpackRuntimeConfig :: basic should match snapshot for ./defered.js: config-pre.js 1`] = `
-"(window[\\"webpackJsonp\\"] = window[\\"webpackJsonp\\"] || []).push([[\\"config-pre\\"],{
-
-/***/ \\"config_module\\":
-/*!**********************!*\\\\
-  !*** config for pre ***!
-  \\\\**********************/
-/*! exports provided: somethingValue, shouldTreeShake, nested */
-/***/ (function(module, exports, __webpack_require__) {
-
-\\"use strict\\";
-__webpack_require__.r(exports);
-/* harmony export (binding) */ __webpack_require__.d(exports, \\"somethingValue\\", function() { return somethingValue; });
-/* harmony export (binding) */ __webpack_require__.d(exports, \\"shouldTreeShake\\", function() { return shouldTreeShake; });
-/* harmony export (binding) */ __webpack_require__.d(exports, \\"nested\\", function() { return nested; });
-/* Config for pre */
-
-const somethingValue = \\"fooBar\\";
-const shouldTreeShake = \\"tree-shaken-value\\";
-const nested = {
-    \\"test\\": \\"nested\\"
-};
-const publicPath = \\"public_path_value\\";
-
-
-__webpack_require__.p = publicPath + __webpack_require__.p;
-
-/***/ })
-
-}]);"
-`;
-
 exports[`WebpackRuntimeConfig :: basic should match snapshot for ./defered.js: config-uat.js 1`] = `
 "(window[\\"webpackJsonp\\"] = window[\\"webpackJsonp\\"] || []).push([[\\"config-uat\\"],{
 
@@ -159,7 +127,7 @@ exports[`WebpackRuntimeConfig :: basic should match snapshot for ./defered.js: m
 /******/
 /******/ 	// script path function
 /******/ 	function jsonpScriptSrc(chunkId) {
-/******/ 		return __webpack_require__.p + \\"\\" + ({\\"config-dev\\":\\"config-dev\\",\\"config-pre\\":\\"config-pre\\",\\"config-uat\\":\\"config-uat\\"}[chunkId]||chunkId) + \\".js\\"
+/******/ 		return __webpack_require__.p + \\"\\" + ({\\"config-dev\\":\\"config-dev\\",\\"config-uat\\":\\"config-uat\\"}[chunkId]||chunkId) + \\".js\\"
 /******/ 	}
 /******/
 /******/ 	// The require function
@@ -330,23 +298,6 @@ __webpack_require__.e(/*! import() */ 0).then(__webpack_require__.t.bind(null, /
 	});
 
 
-/***/ }),
-
-/***/ 0:
-/*!********************!*\\\\
-  !*** config query ***!
-  \\\\********************/
-/*! no static exports found */
-/*! all exports used */
-/***/ (function(module, exports, __webpack_require__) {
-
-\\"use strict\\";
-__webpack_require__.r(exports);
-/* harmony import */ var __CONFIG__ = __webpack_require__(/*! config_module */ \\"config_module\\");
-var __CONFIG___namespace = /*#__PURE__*/__webpack_require__.t(/*! config_module */ \\"config_module\\", 1);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in __CONFIG__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(exports, key, function() { return __CONFIG__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-
-
 /***/ })
 
 /******/ });"
@@ -375,38 +326,6 @@ const nested = {
     \\"test\\": \\"nested\\"
 };
 
-
-/***/ })
-
-}]);"
-`;
-
-exports[`WebpackRuntimeConfig :: basic should match snapshot for ./index.js: config-pre.js 1`] = `
-"(window[\\"webpackJsonp\\"] = window[\\"webpackJsonp\\"] || []).push([[\\"config-pre\\"],{
-
-/***/ \\"config_module\\":
-/*!**********************!*\\\\
-  !*** config for pre ***!
-  \\\\**********************/
-/*! exports provided: somethingValue, shouldTreeShake, nested */
-/***/ (function(module, exports, __webpack_require__) {
-
-\\"use strict\\";
-__webpack_require__.r(exports);
-/* harmony export (binding) */ __webpack_require__.d(exports, \\"somethingValue\\", function() { return somethingValue; });
-/* harmony export (binding) */ __webpack_require__.d(exports, \\"shouldTreeShake\\", function() { return shouldTreeShake; });
-/* harmony export (binding) */ __webpack_require__.d(exports, \\"nested\\", function() { return nested; });
-/* Config for pre */
-
-const somethingValue = \\"fooBar\\";
-const shouldTreeShake = \\"tree-shaken-value\\";
-const nested = {
-    \\"test\\": \\"nested\\"
-};
-const publicPath = \\"public_path_value\\";
-
-
-__webpack_require__.p = publicPath + __webpack_require__.p;
 
 /***/ })
 
@@ -490,7 +409,7 @@ exports[`WebpackRuntimeConfig :: basic should match snapshot for ./index.js: mai
 /******/
 /******/ 	// script path function
 /******/ 	function jsonpScriptSrc(chunkId) {
-/******/ 		return __webpack_require__.p + \\"\\" + ({\\"config-dev\\":\\"config-dev\\",\\"config-pre\\":\\"config-pre\\",\\"config-uat\\":\\"config-uat\\"}[chunkId]||chunkId) + \\".js\\"
+/******/ 		return __webpack_require__.p + \\"\\" + ({\\"config-dev\\":\\"config-dev\\",\\"config-uat\\":\\"config-uat\\"}[chunkId]||chunkId) + \\".js\\"
 /******/ 	}
 /******/
 /******/ 	// The require function
@@ -716,38 +635,6 @@ const nested = {
     \\"test\\": \\"nested\\"
 };
 
-
-/***/ })
-
-}]);"
-`;
-
-exports[`WebpackRuntimeConfig :: basic should match snapshot: config-pre.js 1`] = `
-"(window[\\"webpackJsonp\\"] = window[\\"webpackJsonp\\"] || []).push([[\\"config-pre\\"],{
-
-/***/ \\"config_module\\":
-/*!**********************!*\\\\
-  !*** config for pre ***!
-  \\\\**********************/
-/*! exports provided: somethingValue, shouldTreeShake, nested */
-/***/ (function(module, exports, __webpack_require__) {
-
-\\"use strict\\";
-__webpack_require__.r(exports);
-/* harmony export (binding) */ __webpack_require__.d(exports, \\"somethingValue\\", function() { return somethingValue; });
-/* harmony export (binding) */ __webpack_require__.d(exports, \\"shouldTreeShake\\", function() { return shouldTreeShake; });
-/* harmony export (binding) */ __webpack_require__.d(exports, \\"nested\\", function() { return nested; });
-/* Config for pre */
-
-const somethingValue = \\"fooBar\\";
-const shouldTreeShake = \\"tree-shaken-value\\";
-const nested = {
-    \\"test\\": \\"nested\\"
-};
-const publicPath = \\"public_path_value\\";
-
-
-__webpack_require__.p = publicPath + __webpack_require__.p;
 
 /***/ })
 

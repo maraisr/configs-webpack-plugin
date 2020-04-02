@@ -3,18 +3,18 @@ import Dependency from 'webpack/lib/Dependency';
 import HarmonyExportSpecifierDependency from 'webpack/lib/dependencies/HarmonyExportSpecifierDependency';
 import HarmonyCompatibilityDependency from 'webpack/lib/dependencies/HarmonyCompatibilityDependency';
 import { ConcatSource, ReplaceSource } from 'webpack-sources';
-import { Options } from './types';
+import type { Options } from './types';
 
 type Config = ArrayType<Options['configs']>;
 
 export class ConfigDependencyFactory {
 	create({ dependencies: [dependency] }, callback) {
-		callback(null, new ConfigModule(dependency.config, dependency.options));
+		callback(null, new ConfigModule(dependency.config));
 	}
 }
 
 export class ConfigDependency extends Dependency {
-	constructor(public config: Config, public options: Options) {
+	constructor(public config: Config) {
 		super();
 	}
 
@@ -24,7 +24,7 @@ export class ConfigDependency extends Dependency {
 }
 
 export class ConfigModule extends Module {
-	constructor(public config: Config, private options: Options) {
+	constructor(public config: Config) {
 		super('javascript/dynamic');
 	}
 
@@ -53,11 +53,6 @@ export class ConfigModule extends Module {
 		this.dependencies = [new HarmonyCompatibilityDependency(this)];
 
 		for (const [name] of Object.entries(this.config.config)) {
-			if (
-				this._hasPublicRuntimeConfig &&
-				name === this.options.runtimePublicPath
-			)
-				continue;
 			this.addDependency(
 				new HarmonyExportSpecifierDependency(this, name, name),
 			);
@@ -65,13 +60,6 @@ export class ConfigModule extends Module {
 		}
 
 		callback();
-	}
-
-	get _hasPublicRuntimeConfig() {
-		return (
-			typeof this.options.runtimePublicPath === 'string' &&
-			this.config.config.hasOwnProperty(this.options.runtimePublicPath)
-		);
 	}
 
 	source(dependencyTemplates, runtimeTemplate) {
@@ -99,13 +87,6 @@ export class ConfigModule extends Module {
 		for (const [name, value] of Object.entries(this.config.config)) {
 			fileSource.add(
 				`const ${name} = ${JSON.stringify(value, null, 4)};\n`,
-			);
-		}
-
-		// TODO: Move this to a entryModule instead.
-		if (this._hasPublicRuntimeConfig) {
-			fileSource.add(
-				`\n\n__webpack_require__.p = ${this.options.runtimePublicPath} + __webpack_require__.p;`,
 			);
 		}
 
