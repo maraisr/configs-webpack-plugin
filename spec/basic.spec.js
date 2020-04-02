@@ -35,6 +35,7 @@ describe('ConfigsWebpackPlugin :: RuntimeConfigsPlugin :: basic', () => {
 	it('should fire hook for configChunks', async () => {
 		// one for the webpack errors, and one for the hook.
 		expect.assertions(2);
+		const hookSpy = jest.fn();
 
 		await runWebpack({
 			plugins: [
@@ -42,9 +43,7 @@ describe('ConfigsWebpackPlugin :: RuntimeConfigsPlugin :: basic', () => {
 					apply(compiler) {
 						compiler.hooks.compilation.tap('testing', compilation => {
 							RuntimeConfigsPlugin.getHooks(compilation)
-								.configChunks.tap('tester', configChunks => {
-								expect(configChunks).toHaveLength(2);
-							});
+								.configChunk.tap('tester', hookSpy);
 						});
 					}
 				},
@@ -57,6 +56,8 @@ describe('ConfigsWebpackPlugin :: RuntimeConfigsPlugin :: basic', () => {
 				}),
 			],
 		}, OUTPUT_DIR);
+
+		expect(hookSpy).toHaveBeenCalledTimes(2);
 	});
 
 	it.each([
@@ -100,7 +101,7 @@ describe('ConfigsWebpackPlugin :: RuntimeConfigsPlugin :: basic', () => {
 						compiler.hooks.compilation.tap('testing', compilation => {
 							RuntimeConfigsPlugin.getHooks(compilation)
 								.configChunks
-								.tap('testing', configChunks => {
+								.tap('testing', (_,configChunks) => {
 									chunks = configChunks;
 								});
 						});

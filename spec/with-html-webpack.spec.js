@@ -32,7 +32,7 @@ describe('ConfigsWebpackPlugin :: RuntimeConfigsPlugin :: with-html-webpack-plug
 							RuntimeConfigsPlugin
 								.getHooks(compilation)
 								.configChunks
-								.tap('testing', configChunks => {
+								.tap('testing', (_, configChunks) => {
 									chunks = configChunks;
 								});
 

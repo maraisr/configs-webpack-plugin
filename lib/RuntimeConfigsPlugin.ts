@@ -11,8 +11,15 @@ import type { Options } from './types';
 import { SyncHook } from 'tapable';
 import NormalModuleFactory = webpack.compilation.NormalModuleFactory;
 import Chunk = webpack.compilation.Chunk;
+import Compilation = webpack.compilation.Compilation;
 
-const hooksCache = new WeakMap();
+const hooksCache = new WeakMap<
+	Compilation,
+	{
+		configChunk: SyncHook<ArrayType<Options['configs']>, Chunk>;
+		configChunks: SyncHook<ArrayType<Options['configs']>[], Chunk[]>;
+	}
+>();
 
 const PLUGIN_NAME = 'configs-webpack-plugin';
 
@@ -27,7 +34,8 @@ export class RuntimeConfigsPlugin implements Plugin {
 		let hooks = hooksCache.get(compilation);
 		if (hooks === undefined) {
 			hooks = {
-				configChunks: new SyncHook(['configChunks']),
+				configChunk: new SyncHook(['config', 'chunk']),
+				configChunks: new SyncHook(['configs', 'chunks']),
 			};
 			hooksCache.set(compilation, hooks);
 		}
@@ -36,6 +44,8 @@ export class RuntimeConfigsPlugin implements Plugin {
 
 	apply(compiler): void {
 		compiler.hooks.make.tap(PLUGIN_NAME, (compilation) => {
+			const myHooks = RuntimeConfigsPlugin.getHooks(compilation);
+
 			compilation.dependencyFactories.set(
 				ConfigDependency,
 				new ConfigDependencyFactory(),
@@ -52,12 +62,15 @@ export class RuntimeConfigsPlugin implements Plugin {
 			});
 
 			compilation.hooks.afterChunks.tap(PLUGIN_NAME, () => {
-				const configChunks = [] as Chunk[];
+				const configChunks = [] as [
+					Chunk,
+					ArrayType<Options['configs']>,
+				][];
 
 				for (const module of compilation.modules) {
 					if (module instanceof ConfigModule) {
 						const {
-							config: { name },
+							config: { name, config },
 						} = module;
 
 						const chunkGroup = new ChunkGroup(`config-${name}`);
@@ -90,13 +103,16 @@ export class RuntimeConfigsPlugin implements Plugin {
 							);
 						});
 
+						myHooks.configChunk.call({ config, name }, newChunk);
+
 						// To be used for the hooks
-						configChunks.push(newChunk);
+						configChunks.push([newChunk, { name, config }]);
 					}
 				}
 
-				RuntimeConfigsPlugin.getHooks(compilation).configChunks.call(
-					configChunks,
+				myHooks.configChunks.call(
+					configChunks.map((i) => i[1]),
+					configChunks.map((i) => i[0]),
 				);
 			});
 		});
