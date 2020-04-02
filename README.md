@@ -88,7 +88,7 @@ module.exports = {
 
 also; `configs` can be a
 [generator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator).
-The `yield`'ing is done only once, and defered to just when it's needed.
+The `yield`'ing is done only once, and deferred to just when it's needed.
 
 ## :fishing_pole_and_fish: Hooks!!!
 
@@ -115,6 +115,15 @@ RuntimeConfigsPlugin.getHooks(compilation).configChunks.tap(
 	},
 );
 ```
+
+## :disappointed_relieved: Caveats
+
+-   Node targets aren't currently supported, as async or deferred chunks can't
+    be imported. Thinking maybe you can by utilizing node's require cache to
+    inject this custom module before the main one kicks of. Will continue to
+    tinker with this; who knows maybe v2 :eyes:.
+-   jsonp has to be turned on for your bundle. So even if all of your code is
+    synchronous - the jsonp runtime code will be added.
 
 [webpack]: https://webpack.js.org/
 [html-webpack-plugin]: https://github.com/jantimon/html-webpack-plugin
