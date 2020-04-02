@@ -1,7 +1,15 @@
 {
   "name": "configs-webpack-plugin",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A simplified AoT runtime config solution for your webpack builds",
+  "keywords": [
+    "webpack",
+    "runtime configs",
+    "config",
+    "runtime",
+    "multi config"
+  ],
+  "repository": "github:maraisr/configs-webpack-plugin",
   "license": "MIT",
   "author": "Marais Rossouw <me@maraisr.com>",
   "main": "dist/index.js",

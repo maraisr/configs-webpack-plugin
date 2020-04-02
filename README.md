@@ -1,3 +1,3 @@
-# webpack-runtime-config
+# configs-webpack-plugin
 
 TODO...
