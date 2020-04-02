@@ -1,1 +1,1 @@
-export { default as WebpackRuntimeConfig } from './plugin';
+export { RuntimeConfigsPlugin } from './RuntimeConfigsPlugin';

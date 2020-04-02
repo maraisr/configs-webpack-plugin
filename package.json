@@ -1,10 +1,13 @@
 {
-  "name": "webpack-runtime-config",
-  "version": "0.0.2",
+  "name": "configs-webpack-plugin",
+  "version": "0.0.4",
   "description": "A simplified AoT runtime config solution for your webpack builds",
   "license": "MIT",
   "author": "Marais Rossouw <me@maraisr.com>",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "files": [
+    "dist/"
+  ],
   "scripts": {
     "build": "tsc --incremental",
     "build:watch": "tsc --watch",

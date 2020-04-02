@@ -14,8 +14,9 @@ import Chunk = webpack.compilation.Chunk;
 
 const hooksCache = new WeakMap();
 
-export default class WebpackRuntimeConfig implements Plugin {
-	static PLUGIN_NAME = WebpackRuntimeConfig.name;
+const PLUGIN_NAME = "configs-webpack-plugin";
+
+export class RuntimeConfigsPlugin implements Plugin {
 	private _configs: Options['configs'];
 
 	constructor(private options: Options) {
@@ -35,7 +36,7 @@ export default class WebpackRuntimeConfig implements Plugin {
 
 	apply(compiler): void {
 		compiler.hooks.make.tap(
-			WebpackRuntimeConfig.PLUGIN_NAME,
+			PLUGIN_NAME,
 			(compilation) => {
 				compilation.dependencyFactories.set(
 					ConfigDependency,
@@ -44,7 +45,7 @@ export default class WebpackRuntimeConfig implements Plugin {
 
 				// Make sure all ConfigModules are the same across chunks.
 				compilation.hooks.moduleIds.tap(
-					WebpackRuntimeConfig.PLUGIN_NAME,
+					PLUGIN_NAME,
 					(modules) => {
 						for (const mod of modules) {
 							if (mod instanceof ConfigModule) {
@@ -56,7 +57,7 @@ export default class WebpackRuntimeConfig implements Plugin {
 				);
 
 				compilation.hooks.afterChunks.tap(
-					WebpackRuntimeConfig.PLUGIN_NAME,
+					PLUGIN_NAME,
 					() => {
 						const configChunks = [] as Chunk[];
 
@@ -110,7 +111,7 @@ export default class WebpackRuntimeConfig implements Plugin {
 							}
 						}
 
-						WebpackRuntimeConfig.getHooks(
+						RuntimeConfigsPlugin.getHooks(
 							compilation,
 						).configChunks.call(configChunks);
 					},
@@ -119,9 +120,9 @@ export default class WebpackRuntimeConfig implements Plugin {
 		);
 
 		compiler.hooks.thisCompilation.tap(
-			WebpackRuntimeConfig.PLUGIN_NAME,
+			PLUGIN_NAME,
 			(_compilation, { normalModuleFactory }) => {
-				new WebpackRuntimeConfigFactoryPlugin({
+				new RuntimeConfigsFactoryPlugin({
 					...this.options,
 					configs: this._configs,
 				}).apply(normalModuleFactory);
@@ -130,12 +131,12 @@ export default class WebpackRuntimeConfig implements Plugin {
 	}
 }
 
-class WebpackRuntimeConfigFactoryPlugin {
+class RuntimeConfigsFactoryPlugin {
 	constructor(private options: Options) {}
 
 	apply(normalModuleFactory: NormalModuleFactory) {
 		normalModuleFactory.hooks.factory.tap(
-			WebpackRuntimeConfig.PLUGIN_NAME,
+			PLUGIN_NAME,
 			(factory) => (data, callback) => {
 				const context = data.context;
 				const dependency = data.dependencies[0];

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`WebpackRuntimeConfig :: basic should match snapshot for ./defered.js: 0.js 1`] = `
+exports[`ConfigsWebpackPlugin :: RuntimeConfigsPlugin :: basic should match snapshot for ./defered.js: 0.js 1`] = `
 "(window[\\"webpackJsonp\\"] = window[\\"webpackJsonp\\"] || []).push([[0],[
 /* 0 */
 /*!********************!*\\\\
@@ -21,7 +21,7 @@ var __CONFIG___namespace = /*#__PURE__*/__webpack_require__.t(/*! config_module 
 ]]);"
 `;
 
-exports[`WebpackRuntimeConfig :: basic should match snapshot for ./defered.js: config-dev.js 1`] = `
+exports[`ConfigsWebpackPlugin :: RuntimeConfigsPlugin :: basic should match snapshot for ./defered.js: config-dev.js 1`] = `
 "(window[\\"webpackJsonp\\"] = window[\\"webpackJsonp\\"] || []).push([[\\"config-dev\\"],{
 
 /***/ \\"config_module\\":
@@ -50,7 +50,7 @@ const nested = {
 }]);"
 `;
 
-exports[`WebpackRuntimeConfig :: basic should match snapshot for ./defered.js: config-uat.js 1`] = `
+exports[`ConfigsWebpackPlugin :: RuntimeConfigsPlugin :: basic should match snapshot for ./defered.js: config-uat.js 1`] = `
 "(window[\\"webpackJsonp\\"] = window[\\"webpackJsonp\\"] || []).push([[\\"config-uat\\"],{
 
 /***/ \\"config_module\\":
@@ -81,7 +81,7 @@ const somethingElse = \\"in uat\\";
 }]);"
 `;
 
-exports[`WebpackRuntimeConfig :: basic should match snapshot for ./defered.js: main.js 1`] = `
+exports[`ConfigsWebpackPlugin :: RuntimeConfigsPlugin :: basic should match snapshot for ./defered.js: main.js 1`] = `
 "/******/ (function(modules) { // webpackBootstrap
 /******/ 	// install a JSONP callback for chunk loading
 /******/ 	function webpackJsonpCallback(data) {
@@ -303,7 +303,7 @@ __webpack_require__.e(/*! import() */ 0).then(__webpack_require__.t.bind(null, /
 /******/ });"
 `;
 
-exports[`WebpackRuntimeConfig :: basic should match snapshot for ./index.js: config-dev.js 1`] = `
+exports[`ConfigsWebpackPlugin :: RuntimeConfigsPlugin :: basic should match snapshot for ./index.js: config-dev.js 1`] = `
 "(window[\\"webpackJsonp\\"] = window[\\"webpackJsonp\\"] || []).push([[\\"config-dev\\"],{
 
 /***/ \\"config_module\\":
@@ -332,7 +332,7 @@ const nested = {
 }]);"
 `;
 
-exports[`WebpackRuntimeConfig :: basic should match snapshot for ./index.js: config-uat.js 1`] = `
+exports[`ConfigsWebpackPlugin :: RuntimeConfigsPlugin :: basic should match snapshot for ./index.js: config-uat.js 1`] = `
 "(window[\\"webpackJsonp\\"] = window[\\"webpackJsonp\\"] || []).push([[\\"config-uat\\"],{
 
 /***/ \\"config_module\\":
@@ -363,7 +363,7 @@ const somethingElse = \\"in uat\\";
 }]);"
 `;
 
-exports[`WebpackRuntimeConfig :: basic should match snapshot for ./index.js: main.js 1`] = `
+exports[`ConfigsWebpackPlugin :: RuntimeConfigsPlugin :: basic should match snapshot for ./index.js: main.js 1`] = `
 "/******/ (function(modules) { // webpackBootstrap
 /******/ 	// install a JSONP callback for chunk loading
 /******/ 	function webpackJsonpCallback(data) {
@@ -612,7 +612,7 @@ var __CONFIG___namespace = /*#__PURE__*/__webpack_require__.t(/*! config_module 
 /******/ });"
 `;
 
-exports[`WebpackRuntimeConfig :: basic should match snapshot: config-dev.js 1`] = `
+exports[`ConfigsWebpackPlugin :: RuntimeConfigsPlugin :: basic should match snapshot: config-dev.js 1`] = `
 "(window[\\"webpackJsonp\\"] = window[\\"webpackJsonp\\"] || []).push([[\\"config-dev\\"],{
 
 /***/ \\"config_module\\":
@@ -641,7 +641,7 @@ const nested = {
 }]);"
 `;
 
-exports[`WebpackRuntimeConfig :: basic should match snapshot: config-uat.js 1`] = `
+exports[`ConfigsWebpackPlugin :: RuntimeConfigsPlugin :: basic should match snapshot: config-uat.js 1`] = `
 "(window[\\"webpackJsonp\\"] = window[\\"webpackJsonp\\"] || []).push([[\\"config-uat\\"],{
 
 /***/ \\"config_module\\":

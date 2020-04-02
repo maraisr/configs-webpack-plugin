@@ -1,7 +1,7 @@
 const rimraf = require('rimraf');
 const { expectStatsGreen, runWebpack } = require('./helpers');
 const { join } = require('path');
-const { WebpackRuntimeConfig } = require('../');
+const { RuntimeConfigsPlugin } = require('../dist');
 
 const basicConfig = {
 	somethingValue: 'fooBar',
@@ -13,14 +13,14 @@ const basicConfig = {
 
 const OUTPUT_DIR = join(__dirname, 'fixtures/basic-dist/');
 
-describe('WebpackRuntimeConfig :: basic', () => {
+describe('ConfigsWebpackPlugin :: RuntimeConfigsPlugin :: basic', () => {
 	beforeEach(done => {
 		rimraf(OUTPUT_DIR, done);
 	});
 
 	it('should build with async', async () => {
 		const stats = await runWebpack({
-			plugins: [new WebpackRuntimeConfig({
+			plugins: [new RuntimeConfigsPlugin({
 				configs: [
 					{ name: 'dev', config: basicConfig },
 					{ name: 'uat', config: { ...basicConfig, somethingElseHappened: 'in uat' } },
@@ -41,14 +41,14 @@ describe('WebpackRuntimeConfig :: basic', () => {
 				new class TesterPlugin {
 					apply(compiler) {
 						compiler.hooks.compilation.tap('testing', compilation => {
-							WebpackRuntimeConfig.getHooks(compilation)
+							RuntimeConfigsPlugin.getHooks(compilation)
 								.configChunks.tap('tester', configChunks => {
 								expect(configChunks).toHaveLength(2);
 							});
 						});
 					}
 				},
-				new WebpackRuntimeConfig({
+				new RuntimeConfigsPlugin({
 					configs: [
 						{ name: 'dev', config: basicConfig },
 						{ name: 'uat', config: { ...basicConfig, somethingElseHappened: 'in uat' } },
@@ -77,7 +77,7 @@ describe('WebpackRuntimeConfig :: basic', () => {
 						});
 					}
 				},
-				new WebpackRuntimeConfig({
+				new RuntimeConfigsPlugin({
 					configs: [
 						{ name: 'dev', config: basicConfig },
 						{ name: 'uat', config: { ...basicConfig, somethingElse: 'in uat' } },
@@ -98,7 +98,7 @@ describe('WebpackRuntimeConfig :: basic', () => {
 						let chunks;
 
 						compiler.hooks.compilation.tap('testing', compilation => {
-							WebpackRuntimeConfig.getHooks(compilation)
+							RuntimeConfigsPlugin.getHooks(compilation)
 								.configChunks
 								.tap('testing', configChunks => {
 									chunks = configChunks;
@@ -117,7 +117,7 @@ describe('WebpackRuntimeConfig :: basic', () => {
 						});
 					}
 				},
-				new WebpackRuntimeConfig({
+				new RuntimeConfigsPlugin({
 					configs: [
 						{ name: 'dev', config: basicConfig },
 						{ name: 'uat', config: { ...basicConfig, somethingElse: 'in uat' } },
@@ -134,7 +134,7 @@ describe('WebpackRuntimeConfig :: basic', () => {
 			optimization: {
 				concatenateModules: true,
 			},
-			plugins: [new WebpackRuntimeConfig({
+			plugins: [new RuntimeConfigsPlugin({
 				configs: [
 					{ name: 'dev', config: basicConfig },
 				],

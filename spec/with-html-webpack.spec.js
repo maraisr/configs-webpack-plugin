@@ -2,7 +2,7 @@ const rimraf = require('rimraf');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { join } = require('path');
 const { runWebpack, expectStatsGreen } = require('./helpers');
-const { WebpackRuntimeConfig } = require('../');
+const { RuntimeConfigsPlugin } = require('../dist');
 
 const OUTPUT_DIR = join(__dirname, 'fixtures/html-dist/');
 
@@ -14,7 +14,7 @@ const basicConfig = {
 	},
 };
 
-describe.only('WebpackRuntimeConfig :: basic', () => {
+describe('ConfigsWebpackPlugin :: RuntimeConfigsPlugin :: with-html-webpack-plugin', () => {
 	beforeEach(done => {
 		rimraf(OUTPUT_DIR, done);
 	});
@@ -29,7 +29,7 @@ describe.only('WebpackRuntimeConfig :: basic', () => {
 						compiler.hooks.make.tap('testing', compilation => {
 							let chunks;
 
-							WebpackRuntimeConfig
+							RuntimeConfigsPlugin
 								.getHooks(compilation)
 								.configChunks
 								.tap('testing', configChunks => {
@@ -49,7 +49,7 @@ describe.only('WebpackRuntimeConfig :: basic', () => {
 						});
 					}
 				},
-				new WebpackRuntimeConfig({
+				new RuntimeConfigsPlugin({
 					configs: [
 						{ name: 'dev', config: basicConfig },
 						{ name: 'uat', config: { ...basicConfig, somethingElseHappened: 'in uat' } },
