@@ -45,6 +45,8 @@ module, that actually houses the config. The trick here is that this isnt a
 traditional async chunk, as it needs to exist AoT! So include the chunk before
 the `bootstrap` chunk.
 
+![how its done](https://github.com/maraisr/configs-webpack-plugin/raw/master/docs/idea.png)
+
 ## :rocket: Want to use me?
 
 **webpack.config.js**
