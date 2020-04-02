@@ -14,7 +14,7 @@ import Chunk = webpack.compilation.Chunk;
 
 const hooksCache = new WeakMap();
 
-const PLUGIN_NAME = "configs-webpack-plugin";
+const PLUGIN_NAME = 'configs-webpack-plugin';
 
 export class RuntimeConfigsPlugin implements Plugin {
 	private _configs: Options['configs'];
@@ -35,89 +35,71 @@ export class RuntimeConfigsPlugin implements Plugin {
 	}
 
 	apply(compiler): void {
-		compiler.hooks.make.tap(
-			PLUGIN_NAME,
-			(compilation) => {
-				compilation.dependencyFactories.set(
-					ConfigDependency,
-					new ConfigDependencyFactory(),
-				);
+		compiler.hooks.make.tap(PLUGIN_NAME, (compilation) => {
+			compilation.dependencyFactories.set(
+				ConfigDependency,
+				new ConfigDependencyFactory(),
+			);
 
-				// Make sure all ConfigModules are the same across chunks.
-				compilation.hooks.moduleIds.tap(
-					PLUGIN_NAME,
-					(modules) => {
-						for (const mod of modules) {
-							if (mod instanceof ConfigModule) {
-								// TODO: Hash the config object config graph
-								mod.id = 'config_module';
-							}
-						}
-					},
-				);
+			// Make sure all ConfigModules are the same across chunks.
+			compilation.hooks.moduleIds.tap(PLUGIN_NAME, (modules) => {
+				for (const mod of modules) {
+					if (mod instanceof ConfigModule) {
+						// TODO: Hash the config object config graph
+						mod.id = 'config_module';
+					}
+				}
+			});
 
-				compilation.hooks.afterChunks.tap(
-					PLUGIN_NAME,
-					() => {
-						const configChunks = [] as Chunk[];
+			compilation.hooks.afterChunks.tap(PLUGIN_NAME, () => {
+				const configChunks = [] as Chunk[];
 
-						for (const module of compilation.modules) {
-							if (module instanceof ConfigModule) {
-								const {
-									config: { name },
-								} = module;
+				for (const module of compilation.modules) {
+					if (module instanceof ConfigModule) {
+						const {
+							config: { name },
+						} = module;
 
-								const chunkGroup = new ChunkGroup(
-									`config-${name}`,
-								);
+						const chunkGroup = new ChunkGroup(`config-${name}`);
 
-								const newChunk = compilation.addChunk(
-									`config-${name}`,
-								) as Chunk;
+						const newChunk = compilation.addChunk(
+							`config-${name}`,
+						) as Chunk;
 
-								newChunk.chunkReason = `config for ${name}`;
-								newChunk.preventIntegration = true;
+						newChunk.chunkReason = `config for ${name}`;
+						newChunk.preventIntegration = true;
 
-								// When the module graph was built our ConfigModules were added in place, this removes
-								// them everywhere - so we can "split them out".
-								for (const chunk of compilation.chunks) {
-									chunk.removeModule(module);
-									module.rewriteChunkInReasons(chunk, [
-										newChunk,
-									]);
-								}
-
-								GraphHelpers.connectChunkAndModule(
-									newChunk,
-									module,
-								);
-								GraphHelpers.connectChunkGroupAndChunk(
-									chunkGroup,
-									newChunk,
-								);
-
-								// So that we guarantee the jsonp stuff exists.
-								compilation.entrypoints.forEach(
-									(entrypoint) => {
-										GraphHelpers.connectChunkGroupParentAndChild(
-											entrypoint,
-											chunkGroup,
-										);
-									},
-								);
-
-								// To be used for the hooks
-								configChunks.push(newChunk);
-							}
+						// When the module graph was built our ConfigModules were added in place, this removes
+						// them everywhere - so we can "split them out".
+						for (const chunk of compilation.chunks) {
+							chunk.removeModule(module);
+							module.rewriteChunkInReasons(chunk, [newChunk]);
 						}
 
-						RuntimeConfigsPlugin.getHooks(
-							compilation,
-						).configChunks.call(configChunks);
-					},
+						GraphHelpers.connectChunkAndModule(newChunk, module);
+						GraphHelpers.connectChunkGroupAndChunk(
+							chunkGroup,
+							newChunk,
+						);
+
+						// So that we guarantee the jsonp stuff exists.
+						compilation.entrypoints.forEach((entrypoint) => {
+							GraphHelpers.connectChunkGroupParentAndChild(
+								entrypoint,
+								chunkGroup,
+							);
+						});
+
+						// To be used for the hooks
+						configChunks.push(newChunk);
+					}
+				}
+
+				RuntimeConfigsPlugin.getHooks(compilation).configChunks.call(
+					configChunks,
 				);
-			},
-		);
+			});
+		});
 
 		compiler.hooks.thisCompilation.tap(
 			PLUGIN_NAME,
