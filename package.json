@@ -1,6 +1,6 @@
 {
   "name": "webpack-runtime-config",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A simplified AoT runtime config solution for your webpack builds",
   "license": "MIT",
   "author": "Marais Rossouw <me@maraisr.com>",
