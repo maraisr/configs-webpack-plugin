@@ -47,12 +47,16 @@ the `bootstrap` chunk.
 
 ## :rocket: Want to use me?
 
-```js
-// webpack.config.js
+**webpack.config.js**
 
+```js
 const { RuntimeConfigsPlugin } = require('configs-webpack-plugin');
 
 module.exports = {
+	entry: 'index.js',
+	output: {
+		chunkFilename: '[name]-[contenthash].js',
+	},
 	plugins: [
 		new RuntimeConfigsPlugin({
 			request: '@my-org/config',
@@ -71,17 +75,28 @@ module.exports = {
 };
 ```
 
-> Will note that it is important that you're using `[name]` or something in the
+> Will note that it is important you're using `[name]` or something in the
 > `chunkFilename` output option, as each config chunk _will_ have the same
 > internal id.
+
+also; `configs` can be a
+[generator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator).
+The `yield`'ing is done only once, and defered to just when it's needed.
+
+| Name      |                Type                 | Description                                                                                                                                          |
+| --------- | :---------------------------------: | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `request` |              `string`               | The import token that you're using to import your configs. Eq. the `@my-org/config` in `import { apiDomain } from '@my-org/config`                   |
+| `configs` | `{ name: string, config: any[] }[]` | An array of `Config` objects a name to json serializable values. That'll be given to the issuing module at runtime. Root values must be object keys. |
+
+## :fishing_pole_and_fish: Hooks!!!
 
 There are also hooks, so you can couple it with [html-webpack-plugin] to inject
 config chunks.
 [Example](https://github.com/maraisr/configs-webpack-plugin/blob/master/spec/with-html-webpack.spec.js#L29-L49)
 
--   `configChunk`: `SyncHook<Options['configs'], Chunk>` calls for every config
-    chunk that will emit.
--   `configChunks`: `SyncHook<Options['configs'][], Chunk[]>` calls once all
+-   **`configChunk`** `SyncHook<Options['configs'], Chunk>` calls for every
+    config chunk that will emit.
+-   **`configChunks`** `SyncHook<Options['configs'][], Chunk[]>` calls once all
     config chunks have been created; coupled with the array of configs. Matching
     index with the chunk to config.
 
