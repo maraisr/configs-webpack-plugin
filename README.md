@@ -79,14 +79,16 @@ module.exports = {
 > `chunkFilename` output option, as each config chunk _will_ have the same
 > internal id.
 
+## :nut_and_bolt: Options
+
+| Name      |                Type                 | Description                                                                                                                                          |
+| :-------- | :---------------------------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `request` |              `string`               | The import token that you're using to import your configs. Eq. the `@my-org/config` in `import { apiDomain } from '@my-org/config`                   |
+| `configs` | `{ name: string, config: any[] }[]` | An array of `Config` objects a name to json serializable values. That'll be given to the issuing module at runtime. Root values must be object keys. |
+
 also; `configs` can be a
 [generator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator).
 The `yield`'ing is done only once, and defered to just when it's needed.
-
-| Name      |                Type                 | Description                                                                                                                                          |
-| --------- | :---------------------------------: | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `request` |              `string`               | The import token that you're using to import your configs. Eq. the `@my-org/config` in `import { apiDomain } from '@my-org/config`                   |
-| `configs` | `{ name: string, config: any[] }[]` | An array of `Config` objects a name to json serializable values. That'll be given to the issuing module at runtime. Root values must be object keys. |
 
 ## :fishing_pole_and_fish: Hooks!!!
 
