@@ -116,6 +116,11 @@ RuntimeConfigsPlugin.getHooks(compilation).configChunks.tap(
 );
 ```
 
+## :pray: Future!
+
+-   I hope too also support built time config. Say have features implemented
+    behind a feature flag, but compiled away.
+
 ## :disappointed_relieved: Caveats
 
 -   Node targets aren't currently supported, as async or deferred chunks can't
